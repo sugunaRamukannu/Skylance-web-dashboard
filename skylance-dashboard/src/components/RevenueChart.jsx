@@ -9,48 +9,28 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const revenueData = {
-  week: [
-    { period: "Mon", revenue: 120000 },
-    { period: "Tue", revenue: 180000 },
-    { period: "Wed", revenue: 90000 },
-    { period: "Thu", revenue: 220000 },
-    { period: "Fri", revenue: 280000 },
-    { period: "Sat", revenue: 320000 },
-    { period: "Sun", revenue: 290000 },
-  ],
-  month: [
-    { period: "Jan", revenue: 1200000 },
-    { period: "Feb", revenue: 1800000 },
-    { period: "Mar", revenue: 1500000 },
-    { period: "Apr", revenue: 2200000 },
-    { period: "May", revenue: 2500000 },
-    { period: "Jun", revenue: 2800000 },
-  ],
-  year: [
-    { period: "2020", revenue: 18000000 },
-    { period: "2021", revenue: 22000000 },
-    { period: "2022", revenue: 28000000 },
-    { period: "2023", revenue: 32000000 },
-    { period: "2024", revenue: 35000000 },
-  ],
-};
+import FilterButton from "./FilterButton";
 
-const FilterButton = ({ active, onClick, children }) => (
-  <button
-    onClick={onClick}
-    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-      active
-        ? "bg-blue-500 text-white shadow-md"
-        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-    }`}
-  >
-    {children}
-  </button>
-);
-
-const RevenueGrowthChart = () => {
+const RevenueChart = () => {
   const [filter, setFilter] = useState("month");
+  const revenueData = {
+    month: [
+      { period: "Jan", revenue: 1200000 },
+      { period: "Feb", revenue: 1800000 },
+      { period: "Mar", revenue: 1500000 },
+      { period: "Apr", revenue: 2200000 },
+      { period: "May", revenue: 2500000 },
+      { period: "Jun", revenue: 2800000 },
+    ],
+    year: [
+      { period: "2020", revenue: 18000000 },
+      { period: "2021", revenue: 22000000 },
+      { period: "2022", revenue: 28000000 },
+      { period: "2023", revenue: 32000000 },
+      { period: "2024", revenue: 35000000 },
+    ],
+  };
+
   const data = revenueData[filter];
 
   return (
@@ -58,7 +38,7 @@ const RevenueGrowthChart = () => {
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-semibold text-gray-800">Revenue Growth</h3>
         <div className="flex space-x-2">
-          {["week", "month", "year"].map((period) => (
+          {["month", "year"].map((period) => (
             <FilterButton
               key={period}
               active={filter === period}
@@ -114,4 +94,4 @@ const RevenueGrowthChart = () => {
   );
 };
 
-export default RevenueGrowthChart;
+export default RevenueChart;

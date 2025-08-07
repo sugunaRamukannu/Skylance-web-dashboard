@@ -1,13 +1,29 @@
-import React from "react";
+import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import MainDashboard from "./MainDashboard";
+import FlightRegistry from "./FlightRegistry";
+import PassengerRegistryView from "./PassengerRegistryView";
 
-const Layout = ({ children }) => {
+const Layout = () => {
+  const [activePage, setActivePage] = useState("dashboard");
+
+  const renderContent = () => {
+    switch (activePage) {
+      case "flights":
+        return <FlightRegistry />;
+      case "passengers":
+        return <PassengerRegistryView />;
+      default:
+        return <MainDashboard />;
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       {/* Fixed Sidebar */}
       <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg border-r border-gray-200 z-50">
-        <Sidebar />
+        <Sidebar setActivePage={setActivePage} activePage={activePage} />
       </div>
 
       {/* Main content wrapper */}
@@ -17,8 +33,8 @@ const Layout = ({ children }) => {
           <Navbar />
         </div>
 
-        {/* Dashboard content area */}
-        <div className="mt-16 flex-1 p-6">{children}</div>
+        {/* Dashboard content area, dynamically render the component*/}
+        <div className="mt-16 flex-1 p-6">{renderContent()}</div>
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
-import Dashboard from "./components/dashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { useState } from "react";
 import Layout from "./components/Layout";
@@ -18,9 +17,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Layout>
-                <Dashboard />
-              </Layout>
+              <Layout></Layout>
             </ProtectedRoute>
           }
         />

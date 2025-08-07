@@ -1,13 +1,7 @@
 import React from "react";
 import { TrendingUp } from "lucide-react";
 
-const Card = ({
-  icon,
-  title,
-  value,
-  trend,
-  color = "bg-gradient-to-br from-blue-500 to-blue-600",
-}) => {
+const Card = ({ icon, title, value, trend, color }) => {
   return (
     <div
       className={`p-6 rounded-2xl ${color} backdrop-blur-sm border border-white/20 shadow-lg hover:shadow-xl transition-shadow duration-300`}
