@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Plane, Filter, Clock, CheckCircle, XCircle, Eye } from "lucide-react";
+import { Plane, Eye } from "lucide-react";
 
 const OpenCheckInPassengerOverview = ({ selectedFlight, onViewDetails }) => {
   return (
@@ -8,7 +7,7 @@ const OpenCheckInPassengerOverview = ({ selectedFlight, onViewDetails }) => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">
             {selectedFlight
-              ? `${selectedFlight.id} Passengers`
+              ? `${selectedFlight.flightid} Passengers`
               : "Select a Flight"}
           </h2>
           {selectedFlight && (
@@ -32,7 +31,7 @@ const OpenCheckInPassengerOverview = ({ selectedFlight, onViewDetails }) => {
             </div>
             <div className="text-center p-3 bg-red-50 rounded-xl">
               <p className="text-2xl font-bold text-red-600">
-                {selectedFlight.noShows}
+                {selectedFlight.booked - selectedFlight.checkedIn}
               </p>
               <p className="text-sm text-gray-600">No Shows</p>
             </div>

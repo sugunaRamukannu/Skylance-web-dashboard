@@ -5,7 +5,7 @@ import MainDashboard from "./MainDashboard";
 import FlightRegistry from "./FlightRegistry";
 import PassengerRegistryView from "./PassengerRegistryView";
 
-const Layout = () => {
+const Layout = ({ setIsAuthenticated }) => {
   const [activePage, setActivePage] = useState("dashboard");
 
   const renderContent = () => {
@@ -30,7 +30,7 @@ const Layout = () => {
       <div className="ml-64 flex-1 flex flex-col">
         {/* Fixed Navbar */}
         <div className="fixed top-0 left-64 right-0 h-16 bg-white/80 backdrop-blur-sm shadow-sm border-b border-gray-200 z-40">
-          <Navbar />
+          <Navbar setIsAuthenticated={setIsAuthenticated} />
         </div>
 
         {/* Dashboard content area, dynamically render the component*/}

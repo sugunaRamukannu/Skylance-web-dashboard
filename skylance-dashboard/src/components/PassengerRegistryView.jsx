@@ -1,24 +1,8 @@
-import React, { useState } from "react";
-import {
-  Search,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Plane,
-  Eye,
-  Filter,
-  ArrowLeft,
-  Mail,
-  Phone,
-  FileText,
-  MapPin,
-  User,
-  Luggage,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, CheckCircle, XCircle, Plane, Eye, Filter } from "lucide-react";
 
 import getMembershipColor from "./GetMembershipColor";
 import getStatusIcon from "./GetStatusIcon";
-
 import getStatusColor from "./GetStatusColor";
 
 import PassengerRegistryDetailView from "./PassengerRegistryDetailView";
@@ -30,7 +14,6 @@ const PassengerRegistryView = () => {
   const [selectedPassenger, setSelectedPassenger] = useState(null);
   const recordsPerPage = 10;
 
-  // Filter states
   const [filters, setFilters] = useState({
     passengerName: "",
     dateOfTravel: "",
@@ -40,52 +23,38 @@ const PassengerRegistryView = () => {
     membershipTier: "",
   });
 
-  const passengers = [
-    {
-      id: "PX-A23456",
-      flightNumber: "AW101",
-      airlineName: "SkyWings Airlines",
-      passengerName: "Sarah Johnson",
-      class: "Business",
-      membershipTier: "Gold",
-      dateOfTravel: "2025-07-09",
-      bookingStatus: "Confirmed",
-      weightAllowed: "30kg",
-      weightCarried: "25kg",
-      seatNumber: "12A",
-      checkinStatus: "Checked In",
-      // Additional details for detailed view
-      pnr: "ABC123XYZ",
-      email: "sarah.johnson@email.com",
-      phoneNumber: "+1-555-0123",
-      passportNumber: "A12345678",
-      departureCity: "New York (JFK)",
-      arrivalCity: "London (LHR)",
-      specialRequests: "Vegetarian meal, Wheelchair assistance",
-    },
-    {
-      id: "OW-MNT785",
-      flightNumber: "AX801",
-      airlineName: "Blue Sky Airways",
-      passengerName: "Michael Chen",
-      class: "Economy",
-      membershipTier: "Regular",
-      dateOfTravel: "2025-07-10",
-      bookingStatus: "Pending",
-      weightAllowed: "20kg",
-      weightCarried: "18kg",
-      seatNumber: "7F",
-      checkinStatus: "Not Checked",
-      // Additional details for detailed view
-      pnr: "DEF456UVW",
-      email: "michael.chen@email.com",
-      phoneNumber: "+1-555-0456",
-      passportNumber: "B87654321",
-      departureCity: "Los Angeles (LAX)",
-      arrivalCity: "Tokyo (NRT)",
-      specialRequests: "No special requests",
-    },
-  ];
+  const [passengers, setPassengers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPassengers = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/allpassengers?page=${currentPage}&pageSize=${recordsPerPage}`
+        );
+
+        if (!response.ok) {
+          const text = await response.text(); // read body as text to see internal server error
+          console.error("HTTP error:", response.success, text);
+          return;
+        }
+        const result = await response.json();
+        console.log("Full JSON response:", result);
+        console.log("adf", result.success);
+        if (result.success) {
+          setPassengers(result.data);
+        } else {
+          console.error("Error fetching passengers:", result.message);
+        }
+      } catch (error) {
+        console.error("Error fetching passengers:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPassengers();
+  }, [currentPage]);
 
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({
@@ -146,9 +115,22 @@ const PassengerRegistryView = () => {
     setSelectedPassenger(passenger);
   };
 
+  const handleBackToList = () => {
+    setSelectedPassenger(null);
+  };
+
   // If a passenger is selected, show the detailed view
   if (selectedPassenger) {
-    return <PassengerRegistryDetailView passenger={selectedPassenger} />;
+    return (
+      <PassengerRegistryDetailView
+        passenger={selectedPassenger}
+        onBack={handleBackToList}
+      />
+    );
+  }
+
+  if (isLoading) {
+    return <div className="text-center p-4">Loading passengers...</div>;
   }
 
   // Main List View
@@ -226,8 +208,8 @@ const PassengerRegistryView = () => {
                   }
                 >
                   <option value="">All</option>
-                  <option value="Checked In">Checked In</option>
-                  <option value="Not Checked">Not Checked</option>
+                  <option value="Checked-In">Checked In</option>
+                  <option value="Not Checked-In">Not Checked In</option>
                 </select>
               </div>
 
@@ -416,6 +398,7 @@ const PassengerRegistryView = () => {
               {/* View Details Button */}
               <div className="col-span-1">
                 <button
+                  key={passenger.passengerId}
                   onClick={() => handleViewDetails(passenger)}
                   className="flex items-center space-x-1 px-3 py-1 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition-colors"
                 >

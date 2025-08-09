@@ -1,15 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Filter } from "lucide-react";
 
-const flightData = {
-  SQ001: { show: 120, noShow: 30 },
-  TR256: { show: 90, noShow: 10 },
-  AK789: { show: 60, noShow: 40 },
-};
-
 const FlightShowPredictionPie = () => {
-  const [selectedFlight, setSelectedFlight] = useState("SQ001");
+  const [flightData, setFlightData] = useState({});
+  const [selectedFlight, setSelectedFlight] = useState("");
+
+  useEffect(() => {
+    const fetchFlightData = async () => {
+      try {
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/FlightPrediction/show-percentage`
+        );
+        const result = await response.json();
+
+        if (result.success && Array.isArray(result.data)) {
+          const mappedData = {};
+          result.data.forEach(({ flight, predictedShowPercentage }) => {
+            const show = predictedShowPercentage;
+            const noShow = 100 - predictedShowPercentage;
+            mappedData[flight] = { show, noShow };
+          });
+
+          setFlightData(mappedData);
+
+          // Set default flight selection
+          if (result.data.length > 0) {
+            setSelectedFlight(result.data[0].flight);
+          }
+        } else {
+          console.error("Invalid response from API.");
+        }
+      } catch (error) {
+        console.error("Error fetching flight data:", error);
+      }
+    };
+
+    fetchFlightData();
+  }, []);
+
+  if (!selectedFlight || !flightData[selectedFlight]) return null;
 
   const { show, noShow } = flightData[selectedFlight];
   const total = show + noShow;

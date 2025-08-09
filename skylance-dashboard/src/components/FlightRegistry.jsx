@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Plane, Users, UserCheck } from "lucide-react";
+import { Plane, Users, UserCheck, Crown } from "lucide-react";
 
 const FlightRegistry = () => {
   const [filters, setFilters] = useState({
@@ -19,6 +19,32 @@ const FlightRegistry = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Function to calculate flight duration
+  const calculateDuration = (departureDate, arrivalTime) => {
+    try {
+      const departure = new Date(departureDate);
+      const arrival = new Date(arrivalTime);
+
+      if (isNaN(departure.getTime()) || isNaN(arrival.getTime())) {
+        return "—";
+      }
+
+      const diffMs = arrival.getTime() - departure.getTime();
+
+      // Handle negative duration (arrival before departure - likely next day)
+      const adjustedDiffMs = diffMs < 0 ? diffMs + 24 * 60 * 60 * 1000 : diffMs;
+
+      const hours = Math.floor(adjustedDiffMs / (1000 * 60 * 60));
+      const minutes = Math.floor(
+        (adjustedDiffMs % (1000 * 60 * 60)) / (1000 * 60)
+      );
+
+      return `${hours}h ${minutes}m`;
+    } catch (error) {
+      return "—";
+    }
+  };
+
   useEffect(() => {
     let intervalId;
 
@@ -29,7 +55,7 @@ const FlightRegistry = () => {
         const response = await axios.get(
           `${
             import.meta.env.VITE_API_BASE_URL
-          }/Web_Flights/AllFlights?page=${currentPage}&pageSize=${pageSize}`
+          }/webflights/allflights?page=${currentPage}&pageSize=${pageSize}`
         );
 
         const apiFlights = response.data.flights.map((f, index) => ({
@@ -54,7 +80,7 @@ const FlightRegistry = () => {
               hour12: true,
             }),
           },
-          duration: "—",
+          duration: calculateDuration(f.departureDate, f.arrivalTime),
           date: f.departureDate.slice(0, 10), // YYYY-MM-DD
           passengers: f.totalNoOfPassengers,
           crew: f.totalNoOfCrew,
@@ -151,11 +177,6 @@ const FlightRegistry = () => {
   };
 
   const totalPages = Math.ceil(totalFlights / pageSize);
-
-  // You can now paste your original JSX rendering code from the previous full UI
-  // and just replace these:
-  // - `flightsData` with `filteredFlights`
-  // - time inputs with `dateOfTravel` filter
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-violet-50 to-indigo-50 p-6">
@@ -255,15 +276,6 @@ const FlightRegistry = () => {
               </button>
             </div>
           </div>
-
-          {/* <div className="mt-4 flex justify-end">
-            <button
-              onClick={clearFilters}
-              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-lg hover:from-purple-600 hover:to-violet-600 transition-all duration-200 font-medium"
-            >
-              Clear Filters
-            </button>
-          </div> */}
         </div>
 
         {/* Results Summary */}
@@ -285,25 +297,23 @@ const FlightRegistry = () => {
               className="bg-white rounded-2xl shadow-lg border border-purple-100 p-6 hover:shadow-xl transition-all duration-300 hover:border-purple-200"
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  {/* Airline Info */}
-                  <div className="flex items-center space-x-3">
-                    {/* <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-500 rounded-full flex items-center justify-center text-white text-xl">
-                      {flight.logo}
-                    </div> */}
-                    <div>
-                      <h3 className="font-semibold text-gray-800">
-                        {flight.airline}
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        {flight.flightNumber}
-                      </p>
-                    </div>
+                {/* Airline Info */}
+                <div className="flex items-center space-x-3 min-w-0 flex-shrink-0">
+                  <div>
+                    <h3 className="font-semibold text-gray-800">
+                      {flight.airline}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {flight.flightNumber}
+                    </p>
                   </div>
+                </div>
 
-                  {/* Flight Route */}
-                  <div className="flex items-center space-x-6 flex-1 max-w-2xl">
-                    <div className="text-center">
+                {/* Centered Flight Route */}
+                <div className="flex items-center justify-center flex-1 mx-8">
+                  <div className="flex items-center space-x-8 max-w-3xl w-full">
+                    {/* Departure */}
+                    <div className="text-center flex-shrink-0">
                       <p className="text-2xl font-bold text-gray-800">
                         {flight.departure.time}
                       </p>
@@ -315,24 +325,22 @@ const FlightRegistry = () => {
                       </p>
                     </div>
 
+                    {/* Flight Path with Duration */}
                     <div className="flex-1 relative">
-                      <div className="flex items-center">
+                      <div className="flex items-center justify-center">
                         <div className="flex-1 h-0.5 bg-gradient-to-r from-purple-300 to-violet-300"></div>
-                        <span className="text-gray-400">
-                          -------------------
-                        </span>
-                        <Plane className="h-5 w-5 text-purple-500 mx-2 transform rotate-90" />
-                        <span className="text-gray-400">
-                          -------------------
-                        </span>
+                        <div className="mx-4 flex flex-col items-center">
+                          <Plane className="h-6 w-6 text-purple-500 mb-1" />
+                          <p className="text-xs text-gray-500 font-medium whitespace-nowrap">
+                            {flight.duration}
+                          </p>
+                        </div>
                         <div className="flex-1 h-0.5 bg-gradient-to-r from-purple-300 to-violet-300"></div>
                       </div>
-                      <p className="text-xs text-gray-500 text-center mt-1">
-                        {flight.duration}
-                      </p>
                     </div>
 
-                    <div className="text-center">
+                    {/* Arrival */}
+                    <div className="text-center flex-shrink-0">
                       <p className="text-2xl font-bold text-gray-800">
                         {flight.arrival.time}
                       </p>
@@ -347,7 +355,7 @@ const FlightRegistry = () => {
                 </div>
 
                 {/* Flight Details */}
-                <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-6 min-w-0 flex-shrink-0">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">Date</p>
                     <p className="font-semibold text-gray-800">{flight.date}</p>
@@ -355,11 +363,11 @@ const FlightRegistry = () => {
 
                   <div className="flex items-center space-x-4">
                     <div className="flex items-center text-sm text-gray-600">
-                      <Users className="h-4 w-4 mr-1" />
+                      <Users className="h-4 w-4 mr-1 text-blue-500" />
                       <span>{flight.passengers}</span>
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
-                      <UserCheck className="h-4 w-4 mr-1" />
+                      <Crown className="h-4 w-4 mr-1 text-yellow-500" />
                       <span>{flight.crew}</span>
                     </div>
                   </div>

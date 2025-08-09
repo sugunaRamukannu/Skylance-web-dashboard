@@ -1,7 +1,48 @@
-import React from "react";
-import { Bell, Settings, Search, User } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Bell,
+  Settings,
+  Search,
+  User,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({ setIsAuthenticated }) => {
+  const navigate = useNavigate();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    // Clear authentication data from localStorage
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("tokenExpiry");
+
+    // Update authentication state
+    setIsAuthenticated(false);
+
+    // Close dropdown
+    setIsUserMenuOpen(false);
+
+    // Navigate to login page
+    navigate("/login");
+  };
+
   return (
     <div className="h-16 px-6 flex items-center justify-between bg-white/80 backdrop-blur-sm border-b border-gray-200">
       <div className="flex items-center space-x-4">
@@ -16,20 +57,63 @@ const Navbar = () => {
           </span>
         </button>
 
-        {/* Settings
-        <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-          <Settings size={20} className="text-gray-600" />
+        {/* Settings - uncomment if needed
+        <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors"> 
+          <Settings size={20} className="text-gray-600" /> 
         </button> */}
 
-        {/* User profile */}
-        <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-800">Admin User</p>
-            <p className="text-xs text-gray-500">Liu Zhang</p>
+        {/* User profile with dropdown */}
+        <div className="relative" ref={userMenuRef}>
+          <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-800">Admin User</p>
+              <p className="text-xs text-gray-500">Liu Zhang</p>
+            </div>
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <User size={16} className="text-white" />
+              </div>
+              <ChevronDown
+                size={16}
+                className={`text-gray-400 transition-transform duration-200 ${
+                  isUserMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
           </div>
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-            <User size={16} className="text-white" />
-          </div>
+
+          {/* Dropdown Menu */}
+          {isUserMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+              {/* <div className="px-4 py-2 border-b border-gray-100">
+                <p className="text-sm font-medium text-gray-800">Admin User</p>
+                <p className="text-xs text-gray-500">Liu Zhang</p>
+              </div>
+
+              <button className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <Settings size={16} />
+                <span>Settings</span>
+              </button>
+
+              <button className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                <User size={16} />
+                <span>Profile</span>
+              </button> */}
+
+              <hr className="my-1 border-gray-100" />
+
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center space-x-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut size={16} />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

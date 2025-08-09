@@ -14,18 +14,14 @@ import getMembershipColor from "./GetMembershipColor";
 import getStatusColor from "./GetStatusColor";
 import getStatusIcon from "./GetStatusIcon";
 
-const handleBackToList = () => {
-  setSelectedPassenger(null);
-};
-
 // Detailed View Component
-const PassengerRegistryDetailView = ({ passenger }) => (
+const PassengerRegistryDetailView = ({ passenger, onBack }) => (
   <div className="min-h-screen bg-gray-50">
     {/* Header */}
     <div className="px-6 py-4 bg-white border-b">
       <div className="flex items-center space-x-4">
         <button
-          onClick={handleBackToList}
+          onClick={onBack}
           className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -214,7 +210,7 @@ const PassengerRegistryDetailView = ({ passenger }) => (
               Weight Allowed
             </label>
             <p className="text-lg font-semibold text-gray-900">
-              {passenger.weightAllowed}
+              {passenger.baggageAllowed}
             </p>
           </div>
           <div>
@@ -222,7 +218,7 @@ const PassengerRegistryDetailView = ({ passenger }) => (
               Weight Carried
             </label>
             <p className="text-lg font-semibold text-gray-900">
-              {passenger.weightCarried}
+              {passenger.baggageChecked}
             </p>
           </div>
         </div>
