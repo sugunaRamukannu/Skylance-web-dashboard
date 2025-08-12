@@ -204,7 +204,7 @@ const PassengerShowGauge = () => {
                   </ResponsiveContainer>
                 </div>
                 <div className="absolute left-1/2 bottom-3 transform -translate-x-1/2 text-center">
-                  <div className="text-4xl font-bold text-gray-800">
+                  <div className="text-xl font-bold text-gray-800">
                     {Math.round(data.showPercentage)}%
                   </div>
                   <div className="text-lg text-blue-600 font-medium">Show</div>

@@ -81,11 +81,11 @@ const Login = ({ setIsAuthenticated }) => {
               <div className="text-red-600 text-sm mt-1">{errorMessage}</div>
             )}
 
-            <div className="text-right">
+            {/* <div className="text-right">
               <a href="#" className="text-sm text-blue-600 hover:underline">
                 Forgot Password?
               </a>
-            </div>
+            </div> */}
 
             <button
               type="submit"

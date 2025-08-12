@@ -47,7 +47,16 @@ const RevenueChart = () => {
     fetchRevenueData(filter);
   }, [filter]);
 
-  const totalRevenue = data.reduce((sum, item) => sum + item.revenue, 0);
+  const totalRevenue = data.reduce((sum, item) => {
+    const revenueNum = Number(item.revenue);
+    return sum + (isNaN(revenueNum) ? 0 : revenueNum);
+  }, 0);
+
+  const formatRevenue = (value) => {
+    if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+    if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}K`;
+    return `$${value}`;
+  };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
@@ -74,7 +83,7 @@ const RevenueChart = () => {
         <>
           <div className="mb-4">
             <span className="text-3xl font-bold text-gray-900">
-              ${(totalRevenue / 1000000).toFixed(1)}M
+              {formatRevenue(totalRevenue)}
             </span>
             <span className="text-gray-500 ml-2">Total Revenue</span>
           </div>

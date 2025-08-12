@@ -19,29 +19,23 @@ const OpenCheckInPassengerDetailView = ({
   const [passengers, setPassengers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(5); // Can also allow this to change
+  const [pageSize] = useState(5);
   const [totalPassengers, setTotalPassengers] = useState(0);
 
   useEffect(() => {
     const fetchPassengers = async () => {
       if (!selectedFlight?.flightid) return;
-
       setLoading(true);
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/flights/${
+          `${import.meta.env.VITE_API_BASE_URL}/${
             selectedFlight.flightid
-          }/passengers?flightNumber=${
-            selectedFlight.flightid
-          }&page=${page}&pageSize=${pageSize}`
+          }/passengers?page=${page}&pageSize=${pageSize}`
         );
-
         if (!response.ok) throw new Error("Failed to fetch passengers");
-
         const data = await response.json();
-
         setPassengers(data.passengers || []);
-        setTotalPassengers(data.totalCount || 0);
+        setTotalPassengers(data.totalPassengers || 0);
       } catch (error) {
         console.error("Error fetching passengers:", error);
         setPassengers([]);
@@ -52,33 +46,15 @@ const OpenCheckInPassengerDetailView = ({
     };
 
     fetchPassengers();
-  }, [selectedFlight?.id, page, pageSize]);
-
-  // const getPrediction = (passenger) => {
-  //   const isLateBooking =
-  //     new Date(passenger.bookingTime) > new Date("2024-01-15");
-
-  //   if (
-  //     passenger.status === "no-show" ||
-  //     (passenger.priority === "Basic" && isLateBooking)
-  //   ) {
-  //     return {
-  //       label: "Likely No Show",
-  //       color: "bg-red-100 text-red-700",
-  //     };
-  //   }
-
-  //   return {
-  //     label: "Likely to Show",
-  //     color: "bg-green-100 text-green-700",
-  //   };
-  // };
+  }, [selectedFlight?.flightid, page, pageSize]);
 
   const getPassengerStatusIcon = (status) => {
-    switch (status) {
+    switch ((status || "").toLowerCase()) {
       case "checked-in":
+      case "checkedin":
         return <CheckCircle className="text-green-600" size={16} />;
       case "no-show":
+      case "noshow":
         return <XCircle className="text-red-600" size={16} />;
       case "standby":
         return <Clock className="text-amber-600" size={16} />;
@@ -88,12 +64,12 @@ const OpenCheckInPassengerDetailView = ({
   };
 
   const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "Platinum":
+    switch ((priority || "").toLowerCase()) {
+      case "platinum":
         return "bg-purple-100 text-purple-800";
-      case "Gold":
+      case "gold":
         return "bg-amber-100 text-amber-800";
-      case "Silver":
+      case "silver":
         return "bg-gray-100 text-gray-600";
       default:
         return "bg-blue-100 text-blue-800";
@@ -101,15 +77,17 @@ const OpenCheckInPassengerDetailView = ({
   };
 
   const filteredPassengers = passengers.filter((passenger) => {
+    const passengerStatus = (passenger.bookingStatus || "").toLowerCase();
+    const passengerPriority = (passenger.membershipTier || "").toLowerCase();
+    const searchTermLower = searchTerm.toLowerCase();
+
     const matchesStatus =
-      filterStatus === "all" || passenger.status === filterStatus;
+      filterStatus === "all" || passengerStatus === filterStatus;
     const matchesPriority =
-      filterPriority === "all" || passenger.priority === filterPriority;
+      filterPriority === "all" || passengerPriority === filterPriority;
     const matchesSearch =
-      passenger.passengerName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      passenger.seatNumber.toLowerCase().includes(searchTerm.toLowerCase());
+      (passenger.passengerName || "").toLowerCase().includes(searchTermLower) ||
+      (passenger.seatNumber || "").toLowerCase().includes(searchTermLower);
 
     return matchesStatus && matchesPriority && matchesSearch;
   });
@@ -134,9 +112,6 @@ const OpenCheckInPassengerDetailView = ({
               <h1 className="text-2xl font-bold text-gray-900">
                 {selectedFlight?.flightid} - Passenger Details
               </h1>
-              {/* <p className="text-lg text-gray-600">
-                {selectedFlight?.departure} → {selectedFlight?.arrival}
-              </p> */}
             </div>
           </div>
 
@@ -162,7 +137,8 @@ const OpenCheckInPassengerDetailView = ({
             </div>
             <div className="text-center p-3 bg-red-50 rounded-xl">
               <p className="text-2xl font-bold text-red-600">
-                {selectedFlight.booked - selectedFlight.checkedIn}
+                {(selectedFlight?.booked || 0) -
+                  (selectedFlight?.checkedIn || 0)}
               </p>
               <p className="text-sm text-gray-600">No Shows</p>
             </div>
@@ -190,10 +166,12 @@ const OpenCheckInPassengerDetailView = ({
                 onChange={(e) => setFilterStatus(e.target.value)}
                 className="border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">All Status</option>
-                <option value="checked-in">Checked In</option>
-                <option value="no-show">No Show</option>
-                <option value="standby">Standby</option>
+                <option value="all">Booking Status</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="checkedin">Checked In</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="rebooked">Rebooked</option>
+                <option value="noshow">No Show</option>
               </select>
             </div>
 
@@ -203,11 +181,13 @@ const OpenCheckInPassengerDetailView = ({
                 onChange={(e) => setFilterPriority(e.target.value)}
                 className="border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">All Priority</option>
-                <option value="Platinum">Platinum</option>
-                <option value="Gold">Gold</option>
-                <option value="Silver">Silver</option>
-                <option value="Basic">Basic</option>
+                <option value="all">Priority</option>
+                <option value="regular">Regular</option>
+                <option value="bronze">Bronze</option>
+                <option value="silver">Silver</option>
+                <option value="gold">Gold</option>
+                <option value="platinum">Platinum</option>
+                <option value="normal">Normal</option>
               </select>
             </div>
 
@@ -231,7 +211,7 @@ const OpenCheckInPassengerDetailView = ({
                     Seat
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
-                    Status
+                    Booking Status
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
                     Priority
@@ -240,7 +220,7 @@ const OpenCheckInPassengerDetailView = ({
                     Booking Date
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
-                    Check-in Time
+                    Check-in Status
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
                     Prediction
@@ -257,21 +237,30 @@ const OpenCheckInPassengerDetailView = ({
                       Loading passengers...
                     </td>
                   </tr>
+                ) : filteredPassengers.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="text-center py-6 text-gray-500">
+                      No passengers found.
+                    </td>
+                  </tr>
                 ) : (
                   filteredPassengers.map((passenger) => (
-                    <tr key={passenger.id} className="hover:bg-gray-50">
+                    <tr
+                      key={passenger.passengerId || passenger.passengerName}
+                      className="hover:bg-gray-50"
+                    >
                       <td className="px-6 py-4 font-medium text-gray-900">
-                        {passenger.passengerName}
+                        {passenger.passengerName || "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {passenger.seatNumber}
+                        {passenger.seatNumber || "N/A"}
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-2">
-                          {getPassengerStatusIcon(passenger.status)}
+                          {getPassengerStatusIcon(passenger.bookingStatus)}
                           <span className="text-sm text-gray-600 capitalize">
-                            {(passenger.bookingStatus || "Unknown").replace(
-                              "-",
+                            {(passenger.bookingStatus || "unknown").replace(
+                              /-/g,
                               " "
                             )}
                           </span>
@@ -280,25 +269,28 @@ const OpenCheckInPassengerDetailView = ({
                       <td className="px-6 py-4">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                            passenger.priority
+                            passenger.membershipTier
                           )}`}
                         >
-                          {passenger.priority}
+                          {passenger.membershipTier || "N/A"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {passenger.bookingTime}
+                        {passenger.bookingDate &&
+                        passenger.bookingDate !== "0001-01-01T00:00:00"
+                          ? new Date(passenger.bookingDate).toLocaleDateString()
+                          : "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {passenger.checkInTime || "Not checked in"}
+                        {passenger.checkinTime || "Not checked in"}
                       </td>
                       <td className="px-6 py-4">
                         <span className="px-2 py-1 rounded-full text-xs font-medium">
-                          {passenger.prediction}
+                          {passenger.prediction || "No Prediction"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {passenger.specialRequests}
+                        {passenger.specialRequests || ""}
                       </td>
                     </tr>
                   ))
@@ -308,25 +300,39 @@ const OpenCheckInPassengerDetailView = ({
           </div>
 
           {/* Pagination */}
-          <div className="p-4 border-t border-gray-200 flex justify-end items-center space-x-4">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-600">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+          {totalPages > 1 && (
+            <div className="p-4 border-t border-gray-200 flex justify-end items-center space-x-4">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 
+        ${
+          page === 1
+            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+            : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+        }`}
+              >
+                Previous
+              </button>
+
+              <span className="text-sm text-gray-600">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className={`px-4 py-2 rounded-lg transition-colors duration-200
+        ${
+          page === totalPages
+            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+            : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700"
+        }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

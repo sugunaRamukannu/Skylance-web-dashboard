@@ -30,7 +30,9 @@ const PassengerRegistryView = () => {
     const fetchPassengers = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/allpassengers?page=${currentPage}&pageSize=${recordsPerPage}`
+          `${
+            import.meta.env.VITE_API_BASE_URL
+          }/allpassengers?page=${currentPage}&pageSize=${recordsPerPage}`
         );
 
         if (!response.ok) {
@@ -242,8 +244,10 @@ const PassengerRegistryView = () => {
                 >
                   <option value="">All</option>
                   <option value="Confirmed">Confirmed</option>
-                  <option value="Pending">Pending</option>
+                  <option value="checkedIn">checkedIn</option>
                   <option value="Cancelled">Cancelled</option>
+                  <option value="Rebooked">Rebooked</option>
+                  <option value="NoShow">NoShow</option>
                 </select>
               </div>
 
@@ -271,7 +275,7 @@ const PassengerRegistryView = () => {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={clearFilters}
-                className="px-4 py-2 text-sm text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300"
+                className="px-4 py-2 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-purple-600 via-purple-700 to-purple-800 hover:from-purple-700 hover:via-purple-800 hover:to-purple-900 transition-colors"
               >
                 Clear All Filters
               </button>
@@ -282,17 +286,16 @@ const PassengerRegistryView = () => {
 
       {/* Table Header */}
       <div className="px-6 py-3 bg-gray-100 border-b">
-        <div className="grid grid-cols-10 gap-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
-          <div className="col-span-1">Passenger Name</div>
-          <div className="col-span-1">Passenger Id</div>
-          <div className="col-span-1">Flight Num</div>
-          <div className="col-span-1">Airline</div>
-          <div className="col-span-1">Class</div>
-          <div className="col-span-1">Membership</div>
-          <div className="col-span-1">Travel Date</div>
-          <div className="col-span-1">Booking Status</div>
-          <div className="col-span-1">Check-in Status</div>
-          <div className="col-span-1">Action</div>
+        <div className="grid grid-cols-9 gap-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+          <div className="col-span-1 break-words">Passenger Name</div>
+          <div className="col-span-1 break-words">Flight Num</div>
+          <div className="col-span-1 break-words">Airline</div>
+          <div className="col-span-1 ">Class</div>
+          <div className="col-span-1 break-words">Membership</div>
+          <div className="col-span-1 break-words">Travel Date</div>
+          <div className="col-span-1 break-words">Booking Status</div>
+          <div className="col-span-1 break-words">Check-in Status</div>
+          <div className="col-span-1 break-words">Action</div>
         </div>
       </div>
 
@@ -303,25 +306,16 @@ const PassengerRegistryView = () => {
             key={passenger.id}
             className="px-6 py-4 border-b border-gray-100 hover:bg-gray-50"
           >
-            <div className="grid grid-cols-10 gap-4 items-center text-sm">
+            <div className="grid grid-cols-9 gap-4 items-center text-sm">
               {/* Passenger Name */}
-              <div className="col-span-1">
+              <div className="col-span-1 break-words">
                 <div className="font-semibold text-gray-900">
                   {passenger.passengerName}
-                </div>
-                {/* <div className="text-xs text-gray-500">
-                  Seat: {passenger.seatNumber}
-                </div> */}
-              </div>
-
-              <div className="col-span-1">
-                <div className="font-semibold text-gray-900">
-                  {passenger.id}
                 </div>
               </div>
 
               {/* Flight No. */}
-              <div className="col-span-1">
+              <div className="col-span-1 break-words">
                 <div className="font-semibold text-purple-600 flex items-center space-x-1">
                   <Plane className="w-3 h-3" />
                   <span>{passenger.flightNumber}</span>
@@ -329,9 +323,9 @@ const PassengerRegistryView = () => {
               </div>
 
               {/* Airline */}
-              <div className="col-span-1">
+              <div className="col-span-1 break-words">
                 <div className="text-gray-900 font-medium">
-                  {passenger.airlineName}
+                  {passenger.airline}
                 </div>
               </div>
 
@@ -343,7 +337,7 @@ const PassengerRegistryView = () => {
               </div>
 
               {/* Membership */}
-              <div className="col-span-1">
+              <div className="col-span-1 break-words">
                 <div
                   className={`text-xs font-semibold ${getMembershipColor(
                     passenger.membershipTier
@@ -354,14 +348,14 @@ const PassengerRegistryView = () => {
               </div>
 
               {/* Travel Date */}
-              <div className="col-span-1">
-                <div className="text-gray-900 font-medium">
-                  {passenger.dateOfTravel}
-                </div>
-              </div>
+              <div className="col-span-1 break-words">
+  <div className="text-gray-900 font-medium">
+    {passenger.dateOfTravel ? passenger.dateOfTravel.split("T")[0] : ""}
+  </div>
+</div>
 
               {/* Booking Status */}
-              <div className="col-span-1">
+              <div className="col-span-1 break-words">
                 <span
                   className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
                     passenger.bookingStatus
@@ -373,7 +367,7 @@ const PassengerRegistryView = () => {
               </div>
 
               {/* Check-in Status */}
-              <div className="col-span-1">
+              <div className="col-span-1 break-words">
                 <div
                   className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
                     passenger.checkinStatus === "Checked In"
@@ -396,7 +390,7 @@ const PassengerRegistryView = () => {
               </div>
 
               {/* View Details Button */}
-              <div className="col-span-1">
+              <div className="col-span-1 break-words">
                 <button
                   key={passenger.passengerId}
                   onClick={() => handleViewDetails(passenger)}

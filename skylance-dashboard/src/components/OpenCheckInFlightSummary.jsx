@@ -46,11 +46,16 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
       case "overbooked":
         return "bg-amber-100 text-amber-800 border-amber-200";
       case "normal":
-      case "scheduled":
-        return "bg-green-100 text-green-800 border-green-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
+        return "bg-green-100 text-green-800 border-green-200";
     }
+  };
+
+  // Determine flight status based on CheckedIn, Capacity and overbook
+  const determineStatus = (flight) => {
+    if (flight.overbookingCount > 0) return "Overbooked";
+    if (flight.checkedIn >= flight.capacity * 0.97) return "Critical";
+    return "Normal";
   };
 
   const getVisiblePages = () => {
@@ -138,6 +143,7 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
             const overbookingRate =
               ((flight.booked - flight.capacity) / flight.capacity) * 100;
             const showRate = (flight.checkedIn / flight.booked) * 100;
+            const status = determineStatus(flight);
 
             return (
               <div
@@ -156,18 +162,10 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
                     </h3>
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
-                        flight.booked > flight.capacity * 1.2
-                          ? "critical"
-                          : flight.booked > flight.capacity
-                          ? "overbooked"
-                          : "normal"
+                        status
                       )}`}
                     >
-                      {flight.booked > flight.capacity * 1.2
-                        ? "CRITICAL"
-                        : flight.booked > flight.capacity
-                        ? "OVERBOOKED"
-                        : "NORMAL"}
+                      {status.toUpperCase()}
                     </span>
                   </div>
                   <div className="text-right">

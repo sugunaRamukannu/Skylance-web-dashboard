@@ -3,6 +3,8 @@ import Login from "./components/Login";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { useState } from "react";
 import Layout from "./components/Layout";
+import { IoChatbox } from "react-icons/io5";
+import ChatWidget from "./components/chatbox";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,6 +19,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
+              {/* <ChatWidget /> */}
               <Layout setIsAuthenticated={setIsAuthenticated}></Layout>
             </ProtectedRoute>
           }

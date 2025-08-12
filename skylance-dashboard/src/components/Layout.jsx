@@ -4,6 +4,7 @@ import Navbar from "./Navbar";
 import MainDashboard from "./MainDashboard";
 import FlightRegistry from "./FlightRegistry";
 import PassengerRegistryView from "./PassengerRegistryView";
+import ChatWidget from "./chatbox";
 
 const Layout = ({ setIsAuthenticated }) => {
   const [activePage, setActivePage] = useState("dashboard");
@@ -35,6 +36,9 @@ const Layout = ({ setIsAuthenticated }) => {
 
         {/* Dashboard content area, dynamically render the component*/}
         <div className="mt-16 flex-1 p-6">{renderContent()}</div>
+        <div>
+          <ChatWidget />
+        </div>
       </div>
     </div>
   );

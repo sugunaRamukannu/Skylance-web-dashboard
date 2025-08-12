@@ -22,10 +22,13 @@ const PassengerRegistryDetailView = ({ passenger, onBack }) => (
       <div className="flex items-center space-x-4">
         <button
           onClick={onBack}
-          className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to List</span>
+          {/* <ArrowLeft className="w-4 h-4" />
+          <button className="flex items-center space-x-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            Back to List
+         /> */}
+          Back to List
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Passenger Details</h1>
       </div>
@@ -51,7 +54,7 @@ const PassengerRegistryDetailView = ({ passenger, onBack }) => (
           <div>
             <label className="text-sm font-medium text-gray-500">PNR</label>
             <p className="text-lg font-semibold text-purple-600">
-              {passenger.pnr}
+              {passenger.bookingReferenceNumber}
             </p>
           </div>
           <div>
@@ -114,7 +117,7 @@ const PassengerRegistryDetailView = ({ passenger, onBack }) => (
           </div>
           <div>
             <label className="text-sm font-medium text-gray-500">Airline</label>
-            <p className="text-lg text-gray-900">{passenger.airlineName}</p>
+            <p className="text-lg text-gray-900">{passenger.airline}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-gray-500">Class</label>
@@ -207,15 +210,15 @@ const PassengerRegistryDetailView = ({ passenger, onBack }) => (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="text-sm font-medium text-gray-500">
-              Weight Allowed
+              Baggage Allowance
             </label>
             <p className="text-lg font-semibold text-gray-900">
-              {passenger.baggageAllowed}
+              {passenger.baggageAllowance}
             </p>
           </div>
           <div>
             <label className="text-sm font-medium text-gray-500">
-              Weight Carried
+              Bagged Checked
             </label>
             <p className="text-lg font-semibold text-gray-900">
               {passenger.baggageChecked}

@@ -14,7 +14,7 @@ const FlightRegistry = () => {
   const [flightsData, setFlightsData] = useState([]);
   const [totalFlights, setTotalFlights] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 4;
+  const pageSize = 10;
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
