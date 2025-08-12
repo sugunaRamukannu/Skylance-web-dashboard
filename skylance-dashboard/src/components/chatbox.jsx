@@ -13,15 +13,73 @@ export default function ChatWidget() {
       `${import.meta.env.VITE_API_BASE_URL}/Oversales/available-flights`
     );
     const result = await res.json();
+
     setFlights(result.data);
   };
 
+  // console.log("as" + code);
+
+  // const calculateOversales = async (code) => {
+  //   // console.log("code" + code);
+  //   const res = await fetch(
+  //     `${import.meta.env.VITE_API_BASE_URL}/Oversales/calculate/${code}`
+  //   );
+  //   const data = await res.json();
+  //   console.log(data);
+  //   setMessages((prev) => [...prev, { sender: "bot", text: }]);
+  //   console.log("messages", messages);
+  // };
   const calculateOversales = async (code) => {
     const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/oversales/${code}`
+      `${import.meta.env.VITE_API_BASE_URL}/Oversales/calculate/${code}`
     );
+
+    if (!res.ok) {
+      const text = await res.text();
+      setMessages((prev) => [...prev, { sender: "bot", text }]);
+      setStep(1);
+      return;
+    }
+
     const data = await res.json();
-    setMessages((prev) => [...prev, { sender: "bot", text: data.result }]);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        sender: "bot",
+        text: (
+          <div>
+            <strong style={{ color: "#007bff" }}>
+              Flight {data.flightNumber}
+            </strong>
+            <div style={{ marginTop: "4px" }}>
+              <span style={{ fontWeight: "bold", color: "#28a745" }}>
+                Show probability:
+              </span>{" "}
+              {data.showPercentage.toFixed(2)}%
+            </div>
+            <div>
+              <span style={{ fontWeight: "bold", color: "#dc3545" }}>
+                Recommend oversale:
+              </span>{" "}
+              {data.recommendOversale} tickets
+            </div>
+            <div>
+              <span style={{ fontWeight: "bold", color: "#6f42c1" }}>
+                Reason:
+              </span>{" "}
+              {data.rationale}
+            </div>
+          </div>
+        ),
+      },
+      {
+        sender: "bot",
+        text: "You can now start again by selecting a new option below.",
+      },
+    ]);
+
+    setStep(1);
   };
 
   const handleOptionSelect = (option) => {
@@ -48,7 +106,8 @@ export default function ChatWidget() {
       },
     ]);
     setStep(3);
-    calculateOversales(flightId);
+
+    calculateOversales(selected.code);
   };
   return (
     <div>
