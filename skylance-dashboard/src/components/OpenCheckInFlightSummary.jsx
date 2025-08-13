@@ -11,6 +11,7 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const authToken = localStorage.getItem("authToken");
 
   const fetchFlights = async () => {
     setLoading(true);
@@ -18,7 +19,14 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
       const res = await fetch(
         `${
           import.meta.env.VITE_API_BASE_URL
-        }/webflights/open-for-checkin?page=${currentPage}&pageSize=${pageSize}`
+        }/webflights/open-for-checkin?page=${currentPage}&pageSize=${pageSize}`,
+        {
+          method: "GET",
+          headers: {
+            "Session-Token": authToken,
+            "Content-Type": "application/json",
+          },
+        }
       );
       const json = await res.json();
       if (json.status === "success") {
@@ -51,10 +59,12 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
     }
   };
 
-  // Determine flight status based on CheckedIn, Capacity and overbook
   const determineStatus = (flight) => {
-    if (flight.overbookingCount > 0) return "Overbooked";
-    if (flight.checkedIn >= flight.capacity * 0.97) return "Critical";
+    if (flight.booked > flight.capacity) {
+      if (flight.overbookingCount > 0) return "Overbooked";
+      if (flight.checkedIn >= flight.capacity * 0.97) return "Critical";
+      return "Normal";
+    }
     return "Normal";
   };
 

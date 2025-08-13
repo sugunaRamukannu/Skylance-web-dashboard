@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Search, CheckCircle, XCircle, Plane, Eye, Filter } from "lucide-react";
 
 import getMembershipColor from "./GetMembershipColor";
 import getStatusIcon from "./GetStatusIcon";
 import getStatusColor from "./GetStatusColor";
+import getClassColor from "./getClassColor";
 
 import PassengerRegistryDetailView from "./PassengerRegistryDetailView";
 
@@ -13,6 +14,7 @@ const PassengerRegistryView = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedPassenger, setSelectedPassenger] = useState(null);
   const recordsPerPage = 10;
+  const authToken = localStorage.getItem("authToken");
 
   const [filters, setFilters] = useState({
     passengerName: "",
@@ -32,24 +34,31 @@ const PassengerRegistryView = () => {
         const response = await fetch(
           `${
             import.meta.env.VITE_API_BASE_URL
-          }/allpassengers?page=${currentPage}&pageSize=${recordsPerPage}`
+          }/allpassengers?page=${currentPage}&pageSize=${recordsPerPage}`,
+          {
+            method: "GET",
+            headers: {
+              "Session-Token": authToken,
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (!response.ok) {
-          const text = await response.text(); // read body as text to see internal server error
-          console.error("HTTP error:", response.success, text);
+          const text = await response.text();
+          // console.error("HTTP error:", response.success, text);
           return;
         }
         const result = await response.json();
-        console.log("Full JSON response:", result);
-        console.log("adf", result.success);
+        // console.log("Full JSON response:", result);
+        // console.log("adf", result.success);
         if (result.success) {
           setPassengers(result.data);
         } else {
-          console.error("Error fetching passengers:", result.message);
+          // console.error("Error fetching passengers:", result.message);
         }
       } catch (error) {
-        console.error("Error fetching passengers:", error);
+        // console.error("Error fetching passengers:", error);
       } finally {
         setIsLoading(false);
       }
@@ -121,7 +130,6 @@ const PassengerRegistryView = () => {
     setSelectedPassenger(null);
   };
 
-  // If a passenger is selected, show the detailed view
   if (selectedPassenger) {
     return (
       <PassengerRegistryDetailView
@@ -211,7 +219,7 @@ const PassengerRegistryView = () => {
                 >
                   <option value="">All</option>
                   <option value="Checked-In">Checked In</option>
-                  <option value="Not Checked-In">Not Checked In</option>
+                  <option value="Not Checked">Not Checked In</option>
                 </select>
               </div>
 
@@ -226,7 +234,7 @@ const PassengerRegistryView = () => {
                 >
                   <option value="">All</option>
                   <option value="Economy">Economy</option>
-                  <option value="Business">Business</option>
+                  <option value="PremiumEconomy">PremiumEconomy</option>
                   <option value="First">First</option>
                 </select>
               </div>
@@ -244,7 +252,7 @@ const PassengerRegistryView = () => {
                 >
                   <option value="">All</option>
                   <option value="Confirmed">Confirmed</option>
-                  <option value="checkedIn">checkedIn</option>
+                  <option value="CheckedIn">CheckedIn</option>
                   <option value="Cancelled">Cancelled</option>
                   <option value="Rebooked">Rebooked</option>
                   <option value="NoShow">NoShow</option>
@@ -300,7 +308,7 @@ const PassengerRegistryView = () => {
       </div>
 
       {/* Passenger List */}
-      <div className="bg-white">
+      <div className="bg-white" key={currentPassengers.id}>
         {currentPassengers.map((passenger) => (
           <div
             key={passenger.id}
@@ -316,8 +324,7 @@ const PassengerRegistryView = () => {
 
               {/* Flight No. */}
               <div className="col-span-1 break-words">
-                <div className="font-semibold text-purple-600 flex items-center space-x-1">
-                  <Plane className="w-3 h-3" />
+                <div className="font-semibold items-center space-x-1">
                   <span>{passenger.flightNumber}</span>
                 </div>
               </div>
@@ -331,7 +338,11 @@ const PassengerRegistryView = () => {
 
               {/* Class */}
               <div className="col-span-1">
-                <div className="font-medium text-purple-600">
+                <div
+                  className={`text-xs font-semibold ${getClassColor(
+                    passenger.class
+                  )}`}
+                >
                   {passenger.class}
                 </div>
               </div>
@@ -349,10 +360,12 @@ const PassengerRegistryView = () => {
 
               {/* Travel Date */}
               <div className="col-span-1 break-words">
-  <div className="text-gray-900 font-medium">
-    {passenger.dateOfTravel ? passenger.dateOfTravel.split("T")[0] : ""}
-  </div>
-</div>
+                <div className="text-gray-900 font-medium">
+                  {passenger.dateOfTravel
+                    ? passenger.dateOfTravel.split("T")[0]
+                    : ""}
+                </div>
+              </div>
 
               {/* Booking Status */}
               <div className="col-span-1 break-words">

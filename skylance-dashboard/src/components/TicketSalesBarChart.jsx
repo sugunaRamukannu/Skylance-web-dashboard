@@ -14,6 +14,7 @@ const TicketSalesBarChart = () => {
   const [filter, setFilter] = useState("month");
   const [data, setData] = useState([]);
   const [airlines, setAirlines] = useState([]);
+  const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
     const fetchSalesData = async () => {
@@ -21,7 +22,14 @@ const TicketSalesBarChart = () => {
         const response = await fetch(
           `${
             import.meta.env.VITE_API_BASE_URL
-          }/TicketSales?periodType=${filter}`
+          }/TicketSales?periodType=${filter}`,
+          {
+            method: "GET",
+            headers: {
+              "Session-Token": authToken,
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         if (!response.ok) {

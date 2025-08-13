@@ -21,6 +21,7 @@ const OpenCheckInPassengerDetailView = ({
   const [page, setPage] = useState(1);
   const [pageSize] = useState(5);
   const [totalPassengers, setTotalPassengers] = useState(0);
+  const authToken = localStorage.getItem("authToken");
 
   useEffect(() => {
     const fetchPassengers = async () => {
@@ -30,14 +31,21 @@ const OpenCheckInPassengerDetailView = ({
         const response = await fetch(
           `${import.meta.env.VITE_API_BASE_URL}/${
             selectedFlight.flightid
-          }/passengers?page=${page}&pageSize=${pageSize}`
+          }/passengers?page=${page}&pageSize=${pageSize}`,
+          {
+            method: "GET",
+            headers: {
+              "Session-Token": authToken,
+              "Content-Type": "application/json",
+            },
+          }
         );
         if (!response.ok) throw new Error("Failed to fetch passengers");
         const data = await response.json();
         setPassengers(data.passengers || []);
         setTotalPassengers(data.totalPassengers || 0);
       } catch (error) {
-        console.error("Error fetching passengers:", error);
+        // console.error("Error fetching passengers:", error);
         setPassengers([]);
         setTotalPassengers(0);
       } finally {

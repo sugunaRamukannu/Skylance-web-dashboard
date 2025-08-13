@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FaComments } from "react-icons/fa";
 
 export default function ChatWidget() {
@@ -7,82 +7,119 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState([]);
   const [flights, setFlights] = useState([]);
   const [selectedFlight, setSelectedFlight] = useState("");
+  const [loadingFlights, setLoadingFlights] = useState(false);
+  const [loadingOversales, setLoadingOversales] = useState(false);
+
+  const authToken = localStorage.getItem("authToken");
 
   const fetchFlights = async () => {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/Oversales/available-flights`
-    );
-    const result = await res.json();
+    setLoadingFlights(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/Oversales/available-flights`,
+        {
+          method: "GET",
+          headers: {
+            "Session-Token": authToken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    setFlights(result.data);
+      if (!res.ok) throw new Error(await res.text());
+
+      const result = await res.json();
+      const flightData = result?.data || [];
+
+      setFlights(flightData);
+
+      if (flightData.length === 0) {
+        setMessages((prev) => [
+          ...prev,
+          { sender: "bot", text: "No flights available at the moment." },
+        ]);
+      }
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: `Error fetching flights: ${err.message}` },
+      ]);
+    } finally {
+      setLoadingFlights(false);
+    }
   };
 
-  // console.log("as" + code);
-
-  // const calculateOversales = async (code) => {
-  //   // console.log("code" + code);
-  //   const res = await fetch(
-  //     `${import.meta.env.VITE_API_BASE_URL}/Oversales/calculate/${code}`
-  //   );
-  //   const data = await res.json();
-  //   console.log(data);
-  //   setMessages((prev) => [...prev, { sender: "bot", text: }]);
-  //   console.log("messages", messages);
-  // };
   const calculateOversales = async (code) => {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/Oversales/calculate/${code}`
-    );
+    setLoadingOversales(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/Oversales/calculate/${code}`,
+        {
+          method: "GET",
+          headers: {
+            "Session-Token": authToken,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (!res.ok) throw new Error(await res.text());
 
-    if (!res.ok) {
-      const text = await res.text();
-      setMessages((prev) => [...prev, { sender: "bot", text }]);
+      const data = await res.json();
+
+      if (!data) throw new Error("No data returned from server.");
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: (
+            <div>
+              <strong style={{ color: "#007bff" }}>
+                Flight {data.flightNumber || "N/A"}
+              </strong>
+              <div style={{ marginTop: "4px" }}>
+                <span style={{ fontWeight: "bold", color: "#28a745" }}>
+                  Show probability:
+                </span>{" "}
+                {data.showPercentage != null
+                  ? data.showPercentage.toFixed(2)
+                  : "N/A"}
+                %
+              </div>
+              <div>
+                <span style={{ fontWeight: "bold", color: "#dc3545" }}>
+                  Recommend oversale:
+                </span>{" "}
+                {data.recommendOversale ?? "N/A"} tickets
+              </div>
+              <div>
+                <span style={{ fontWeight: "bold", color: "#6f42c1" }}>
+                  Reason:
+                </span>{" "}
+                {data.rationale || "N/A"}
+              </div>
+            </div>
+          ),
+        },
+        {
+          sender: "bot",
+          text: "You can now start again by selecting a new option below.",
+        },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: `Error calculating oversales: ${err.message}` },
+      ]);
+    } finally {
       setStep(1);
-      return;
+      setLoadingOversales(false);
     }
-
-    const data = await res.json();
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: "bot",
-        text: (
-          <div>
-            <strong style={{ color: "#007bff" }}>
-              Flight {data.flightNumber}
-            </strong>
-            <div style={{ marginTop: "4px" }}>
-              <span style={{ fontWeight: "bold", color: "#28a745" }}>
-                Show probability:
-              </span>{" "}
-              {data.showPercentage.toFixed(2)}%
-            </div>
-            <div>
-              <span style={{ fontWeight: "bold", color: "#dc3545" }}>
-                Recommend oversale:
-              </span>{" "}
-              {data.recommendOversale} tickets
-            </div>
-            <div>
-              <span style={{ fontWeight: "bold", color: "#6f42c1" }}>
-                Reason:
-              </span>{" "}
-              {data.rationale}
-            </div>
-          </div>
-        ),
-      },
-      {
-        sender: "bot",
-        text: "You can now start again by selecting a new option below.",
-      },
-    ]);
-
-    setStep(1);
   };
 
   const handleOptionSelect = (option) => {
+    if (!option) return;
+
     setMessages((prev) => [...prev, { sender: "user", text: option }]);
 
     if (option === "Calculate Oversales Ticket") {
@@ -96,8 +133,19 @@ export default function ChatWidget() {
   };
 
   const handleFlightSelect = (flightId) => {
+    if (!flightId) return;
+
     setSelectedFlight(flightId);
     const selected = flights.find((f) => f.id === Number(flightId));
+
+    if (!selected) {
+      setMessages((prev) => [
+        ...prev,
+        { sender: "bot", text: "Selected flight not found." },
+      ]);
+      return;
+    }
+
     setMessages((prev) => [
       ...prev,
       {
@@ -105,13 +153,13 @@ export default function ChatWidget() {
         text: `Flight ${selected.code} - ${selected.seatCapacity} seats`,
       },
     ]);
-    setStep(3);
 
+    setStep(3);
     calculateOversales(selected.code);
   };
+
   return (
     <div>
-      {/* Floating Message Icon */}
       <div
         className="fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-cyan-500 p-4 rounded-full text-white cursor-pointer shadow-xl hover:from-blue-600 hover:to-cyan-600"
         onClick={() => setIsOpen(!isOpen)}
@@ -119,15 +167,12 @@ export default function ChatWidget() {
         <FaComments size={24} />
       </div>
 
-      {/* Chatbox */}
       {isOpen && (
         <div className="fixed bottom-20 right-6 w-80 bg-white border rounded-lg shadow-2xl flex flex-col overflow-hidden">
-          {/* Header */}
           <div className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-3 font-semibold">
             Chat Assistant
           </div>
 
-          {/* Chat Messages */}
           <div className="flex-1 p-4 overflow-y-auto h-80">
             {messages.map((msg, idx) => (
               <div
@@ -143,12 +188,12 @@ export default function ChatWidget() {
             ))}
           </div>
 
-          {/* Input Options */}
           <div className="border-t p-3">
             {step === 1 && (
               <select
                 className="w-full border rounded p-2"
                 onChange={(e) => handleOptionSelect(e.target.value)}
+                value=""
               >
                 <option value="">Select an option</option>
                 <option value="Calculate Oversales Ticket">
@@ -158,22 +203,37 @@ export default function ChatWidget() {
             )}
 
             {step === 2 && (
-              <select
-                className="w-full border rounded p-2"
-                onChange={(e) => handleFlightSelect(e.target.value)}
-              >
-                <option value="">Select Flight</option>
-                {flights.map((f) => (
-                  <option key={f.id} value={f.id}>
-                    {f.code} - {f.seatCapacity} seats
-                  </option>
-                ))}
-              </select>
+              <>
+                {loadingFlights ? (
+                  <div className="text-sm text-gray-500">
+                    Loading available flights...
+                  </div>
+                ) : flights.length > 0 ? (
+                  <select
+                    className="w-full border rounded p-2"
+                    onChange={(e) => handleFlightSelect(e.target.value)}
+                    value=""
+                  >
+                    <option value="">Select Flight</option>
+                    {flights.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.code} - {f.seatCapacity} seats
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="text-sm text-gray-500">
+                    No flights available.
+                  </div>
+                )}
+              </>
             )}
 
             {step === 3 && (
               <div className="text-sm text-gray-500">
-                Calculating oversales for {selectedFlight}...
+                {loadingOversales
+                  ? `Calculating oversales for ${selectedFlight}...`
+                  : "Processing completed."}
               </div>
             )}
           </div>

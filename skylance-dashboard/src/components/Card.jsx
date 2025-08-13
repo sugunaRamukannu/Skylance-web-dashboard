@@ -1,4 +1,3 @@
-import React from "react";
 import { TrendingUp } from "lucide-react";
 
 const Card = ({ icon, title, valueToday, percentChange, color }) => {

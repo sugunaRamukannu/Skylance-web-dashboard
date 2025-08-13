@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -16,12 +16,20 @@ const RevenueChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const authToken = localStorage.getItem("authToken");
 
   const fetchRevenueData = async (period) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/Revenue?periodType=${period}`
+        `${import.meta.env.VITE_API_BASE_URL}/Revenue?periodType=${period}`,
+        {
+          method: "GET",
+          headers: {
+            "Session-Token": authToken,
+            "Content-Type": "application/json",
+          },
+        }
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -35,7 +43,7 @@ const RevenueChart = () => {
         throw new Error("API responded with success: false");
       }
     } catch (err) {
-      console.error("Failed to fetch revenue data:", err.message);
+      // console.error("Failed to fetch revenue data:", err.message);
       setError("Failed to fetch revenue data.");
       setData([]);
     } finally {

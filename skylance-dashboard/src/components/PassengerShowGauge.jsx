@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 const PassengerShowGauge = () => {
@@ -8,6 +8,7 @@ const PassengerShowGauge = () => {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [monthDropdownOpen, setMonthDropdownOpen] = useState(false);
+  const authToken = localStorage.getItem("authToken");
 
   const fetchData = async (rangeType, year, month = null) => {
     setLoading(true);
@@ -19,7 +20,13 @@ const PassengerShowGauge = () => {
         url += `&month=${month}`;
       }
 
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Session-Token": authToken,
+          "Content-Type": "application/json",
+        },
+      });
       const result = await response.json();
 
       if (result.success && result.data.length > 0) {
@@ -28,7 +35,7 @@ const PassengerShowGauge = () => {
         setData(null);
       }
     } catch (error) {
-      console.error("API Error:", error);
+      // console.error("API Error:", error);
       setData(null);
     }
     setLoading(false);

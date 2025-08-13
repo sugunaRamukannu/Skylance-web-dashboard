@@ -1,16 +1,17 @@
 const getMembershipColor = (tier) => {
   switch (tier) {
-    case "Platinum":
-      return "text-purple-600 font-bold";
-    case "Gold":
-      return "text-yellow-600 font-bold";
-    case "Silver":
-      return "text-gray-500 font-bold";
+    case "Regular":
+      return "text-blue-800";
     case "Bronze":
-      return "text-orange-600 font-bold";
+      return "text-yellow-800";
+    case "Silver":
+      return "text-gray-800";
+    case "Gold":
+      return "text-amber-800";
+    case "Platinum":
+      return "text-blue-800";
     default:
-      return "text-gray-400";
+      return "text-orange-800";
   }
 };
-
 export default getMembershipColor;

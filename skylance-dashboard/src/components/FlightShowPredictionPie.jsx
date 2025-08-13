@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { Filter } from "lucide-react";
 
@@ -6,13 +6,22 @@ const FlightShowPredictionPie = () => {
   const [flightData, setFlightData] = useState({});
   const [selectedFlight, setSelectedFlight] = useState("");
 
+  const authToken = localStorage.getItem("authToken");
+
   useEffect(() => {
     const fetchFlightData = async () => {
       try {
         const response = await fetch(
           `${
             import.meta.env.VITE_API_BASE_URL
-          }/FlightPrediction/show-percentage`
+          }/FlightPrediction/show-percentage`,
+          {
+            method: "GET",
+            headers: {
+              "Session-Token": authToken,
+              "Content-Type": "application/json",
+            },
+          }
         );
         const result = await response.json();
 

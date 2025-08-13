@@ -18,6 +18,8 @@ const MainDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const authToken = localStorage.getItem("authToken");
+
   const handleViewDetails = (flight) => {
     setSelectedFlight(flight);
     setCurrentView("OpenCheckInPassengerDetailView");
@@ -31,7 +33,14 @@ const MainDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/dashboard/summary`
+          `${import.meta.env.VITE_API_BASE_URL}/dashboard/summary`,
+          {
+            method: "GET",
+            headers: {
+              "Session-Token": authToken,
+              "Content-Type": "application/json",
+            },
+          }
         );
         const json = await res.json();
 

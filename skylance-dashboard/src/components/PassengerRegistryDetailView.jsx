@@ -1,9 +1,7 @@
 import {
-  Search,
   CheckCircle,
   XCircle,
   Plane,
-  ArrowLeft,
   Mail,
   FileText,
   MapPin,

@@ -1,22 +1,10 @@
-import {
-  LayoutDashboard,
-  Plane,
-  Users,
-  Calendar,
-  FileText,
-  Settings,
-  HelpCircle,
-} from "lucide-react";
+import { LayoutDashboard, Plane, Users } from "lucide-react";
 
 const Sidebar = ({ setActivePage, activePage }) => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "flights", label: "Flight Management", icon: Plane },
     { id: "passengers", label: "Passenger Details", icon: Users },
-    // { id: "schedule", label: "Flight Schedule", icon: Calendar },
-    // { id: "reports", label: "Reports", icon: FileText },
-    // { id: "settings", label: "Settings", icon: Settings },
-    // { id: "help", label: "Help & Support", icon: HelpCircle },
   ];
 
   return (

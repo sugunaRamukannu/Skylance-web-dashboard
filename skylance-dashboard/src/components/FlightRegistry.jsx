@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Plane, Users, UserCheck, Crown } from "lucide-react";
+import { Plane, Users, Crown } from "lucide-react";
 
 const FlightRegistry = () => {
   const [filters, setFilters] = useState({
@@ -15,6 +15,7 @@ const FlightRegistry = () => {
   const [totalFlights, setTotalFlights] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
+  const authToken = localStorage.getItem("authToken");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -55,7 +56,14 @@ const FlightRegistry = () => {
         const response = await axios.get(
           `${
             import.meta.env.VITE_API_BASE_URL
-          }/webflights/allflights?page=${currentPage}&pageSize=${pageSize}`
+          }/webflights/allflights?page=${currentPage}&pageSize=${pageSize}`,
+          {
+            method: "GET",
+            headers: {
+              "Session-Token": authToken,
+              "Content-Type": "application/json",
+            },
+          }
         );
 
         const apiFlights = response.data.flights.map((f, index) => ({
