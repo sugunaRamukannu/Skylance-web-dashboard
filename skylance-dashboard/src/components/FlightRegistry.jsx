@@ -20,26 +20,19 @@ const FlightRegistry = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Function to calculate flight duration
   const calculateDuration = (departureDate, arrivalTime) => {
     try {
       const departure = new Date(departureDate);
       const arrival = new Date(arrivalTime);
-
       if (isNaN(departure.getTime()) || isNaN(arrival.getTime())) {
         return "—";
       }
-
       const diffMs = arrival.getTime() - departure.getTime();
-
-      // Handle negative duration (arrival before departure - likely next day)
       const adjustedDiffMs = diffMs < 0 ? diffMs + 24 * 60 * 60 * 1000 : diffMs;
-
       const hours = Math.floor(adjustedDiffMs / (1000 * 60 * 60));
       const minutes = Math.floor(
         (adjustedDiffMs % (1000 * 60 * 60)) / (1000 * 60)
       );
-
       return `${hours}h ${minutes}m`;
     } catch (error) {
       return "—";
@@ -89,11 +82,12 @@ const FlightRegistry = () => {
             }),
           },
           duration: calculateDuration(f.departureDate, f.arrivalTime),
-          date: f.departureDate.slice(0, 10), // YYYY-MM-DD
+          date: f.departureDate.slice(0, 10),
           passengers: f.totalNoOfPassengers,
           crew: f.totalNoOfCrew,
           status: f.flightStatus.toLowerCase(),
         }));
+
         console.log("respo", response.data);
         setFlightsData(apiFlights);
         setTotalFlights(response.data.totalFlights);
@@ -105,9 +99,7 @@ const FlightRegistry = () => {
     };
 
     fetchFlights();
-
     intervalId = setInterval(fetchFlights, 10000);
-
     return () => clearInterval(intervalId);
   }, [currentPage]);
 
@@ -120,10 +112,11 @@ const FlightRegistry = () => {
   ];
 
   const statusOptions = [
-    { value: "ontime", label: "On Time" },
-    { value: "delayed", label: "Delayed" },
-    { value: "landed", label: "Landed" },
-    { value: "scheduled", label: "Scheduled" },
+    { value: "On time", label: "On time" },
+    { value: "In-flight", label: "In-flight" },
+    { value: "Delayed", label: "Delayed" },
+    { value: "Landed", label: "Landed" },
+    { value: "Scheduled", label: "Scheduled" },
   ];
 
   const getStatusColor = (status) => {
@@ -305,7 +298,6 @@ const FlightRegistry = () => {
               className="bg-white rounded-2xl shadow-lg border border-purple-100 p-6 hover:shadow-xl transition-all duration-300 hover:border-purple-200"
             >
               <div className="flex items-center justify-between">
-                {/* Airline Info */}
                 <div className="flex items-center space-x-3 min-w-0 flex-shrink-0">
                   <div>
                     <h3 className="font-semibold text-gray-800">
@@ -317,10 +309,8 @@ const FlightRegistry = () => {
                   </div>
                 </div>
 
-                {/* Centered Flight Route */}
                 <div className="flex items-center justify-center flex-1 mx-8">
                   <div className="flex items-center space-x-8 max-w-3xl w-full">
-                    {/* Departure */}
                     <div className="text-center flex-shrink-0">
                       <p className="text-2xl font-bold text-gray-800">
                         {flight.departure.time}
@@ -333,7 +323,6 @@ const FlightRegistry = () => {
                       </p>
                     </div>
 
-                    {/* Flight Path with Duration */}
                     <div className="flex-1 relative">
                       <div className="flex items-center justify-center">
                         <div className="flex-1 h-0.5 bg-gradient-to-r from-purple-300 to-violet-300"></div>
@@ -347,7 +336,6 @@ const FlightRegistry = () => {
                       </div>
                     </div>
 
-                    {/* Arrival */}
                     <div className="text-center flex-shrink-0">
                       <p className="text-2xl font-bold text-gray-800">
                         {flight.arrival.time}
@@ -362,7 +350,6 @@ const FlightRegistry = () => {
                   </div>
                 </div>
 
-                {/* Flight Details */}
                 <div className="flex items-center space-x-6 min-w-0 flex-shrink-0">
                   <div className="text-center">
                     <p className="text-sm text-gray-500">Date</p>
@@ -407,7 +394,6 @@ const FlightRegistry = () => {
           </div>
         )}
 
-        {/* Pagination */}
         {filteredFlights.length > 0 && (
           <div className="flex justify-center items-center space-x-2 mt-8">
             <button

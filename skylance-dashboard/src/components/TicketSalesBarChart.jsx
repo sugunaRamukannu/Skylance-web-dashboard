@@ -71,7 +71,7 @@ const TicketSalesBarChart = () => {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-800">Ticket Sales</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Total Sales</h3>
         <div className="flex space-x-2">
           {["month", "year"].map((period) => (
             <FilterButton
@@ -89,13 +89,13 @@ const TicketSalesBarChart = () => {
         <span className="text-3xl font-bold text-gray-900">
           {getTotalTickets().toLocaleString()}
         </span>
-        <span className="text-gray-500 ml-2">Total Tickets</span>
+        <span className="text-gray-500 ml-2">Total Sales</span>
       </div>
 
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={data}
+            data={[...data].reverse()}
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <defs>

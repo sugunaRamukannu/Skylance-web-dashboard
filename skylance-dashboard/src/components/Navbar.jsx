@@ -43,7 +43,6 @@ const Navbar = ({ setIsAuthenticated }) => {
           <div className="flex items-center space-x-3 pl-4 border-l border-gray-200">
             <div className="text-right">
               <p className="text-sm font-medium text-gray-800">Admin User</p>
-              <p className="text-xs text-gray-500">Liu Zhang</p>
             </div>
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}

@@ -40,7 +40,6 @@ function AppWrapper() {
         path="/dashboard"
         element={
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            {/* <ChatWidget /> */}
             <Layout setIsAuthenticated={setIsAuthenticated} />
           </ProtectedRoute>
         }

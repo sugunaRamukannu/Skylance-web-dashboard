@@ -15,7 +15,6 @@ const Card = ({ icon, title, valueToday, percentChange, color }) => {
         </div>
         {percentChange && (
           <div className="flex items-center text-white/90 text-sm">
-            <TrendingUp size={16} className="mr-1" />
             {percentChange}
           </div>
         )}

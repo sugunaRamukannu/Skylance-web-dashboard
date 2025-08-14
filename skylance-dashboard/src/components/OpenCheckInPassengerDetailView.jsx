@@ -7,6 +7,8 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
+import getStatusColor from "./GetStatusColor";
+import getStatusIcon from "./GetStatusIcon";
 
 const OpenCheckInPassengerDetailView = ({
   selectedFlight,
@@ -231,7 +233,7 @@ const OpenCheckInPassengerDetailView = ({
                     Check-in Status
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
-                    Prediction
+                    No-Show Risk
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">
                     Special Requests
@@ -264,13 +266,23 @@ const OpenCheckInPassengerDetailView = ({
                         {passenger.seatNumber || "N/A"}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center space-x-2">
+                        {/* <div className="flex items-center space-x-2">
                           {getPassengerStatusIcon(passenger.bookingStatus)}
                           <span className="text-sm text-gray-600 capitalize">
                             {(passenger.bookingStatus || "unknown").replace(
                               /-/g,
                               " "
                             )}
+                          </span>
+                        </div> */}
+                        <div className="col-span-1 break-words">
+                          <span
+                            className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              passenger.bookingStatus
+                            )}`}
+                          >
+                            {getStatusIcon(passenger.bookingStatus)}
+                            <span>{passenger.bookingStatus}</span>
                           </span>
                         </div>
                       </td>
@@ -290,11 +302,41 @@ const OpenCheckInPassengerDetailView = ({
                           : "N/A"}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">
-                        {passenger.checkinTime || "Not checked in"}
+                        {passenger.checkinTime
+                          ? "Checked In"
+                          : "Not Checked In"}
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2 py-1 rounded-full text-xs font-medium">
-                          {passenger.prediction || "No Prediction"}
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            passenger.prediction
+                              ? (() => {
+                                  const raw = passenger.prediction.toString();
+                                  const val = raw
+                                    .replace(/[_\-]/g, " ")
+                                    .trim()
+                                    .toLowerCase();
+                                  if (val === "no show")
+                                    return "bg-red-100 text-red-800";
+                                  if (val === "show")
+                                    return "bg-green-100 text-green-800";
+                                  return "bg-gray-100 text-gray-600";
+                                })()
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {passenger.prediction
+                            ? (() => {
+                                const raw = passenger.prediction.toString();
+                                const val = raw
+                                  .replace(/[_\-]/g, " ")
+                                  .trim()
+                                  .toLowerCase();
+                                if (val === "no show") return "High";
+                                if (val === "show") return "Low";
+                                return "N/A";
+                              })()
+                            : "N/A"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600">

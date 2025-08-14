@@ -9,6 +9,7 @@ import FlightShowPredictionPie from "./FlightShowPredictionPie";
 import PassengerShowGauge from "./PassengerShowGauge";
 import OpenCheckInPassengerDetailView from "./OpenCheckInPassengerDetailView";
 import OpenCheckInPassengerOverview from "./OpenCheckInPassengerOverview";
+import { Result } from "postcss";
 
 const MainDashboard = () => {
   const [selectedFlight, setSelectedFlight] = useState(null);
@@ -19,6 +20,7 @@ const MainDashboard = () => {
   const [error, setError] = useState(null);
 
   const authToken = localStorage.getItem("authToken");
+  // console.log(authToken);
 
   const handleViewDetails = (flight) => {
     setSelectedFlight(flight);
@@ -42,7 +44,9 @@ const MainDashboard = () => {
             },
           }
         );
+
         const json = await res.json();
+        console.log(json);
 
         if (json.status === "success") {
           setDashboardData(json.data);
@@ -83,8 +87,8 @@ const MainDashboard = () => {
               <Card
                 icon={<Plane className="text-white" size={24} />}
                 title="Active Flights"
-                valueToday={dashboardData.activeFlights.valueToday}
-                percentChange={dashboardData.activeFlights.percentChange}
+                valueToday={dashboardData.checkInFlights}
+                // percentChange={dashboardData.activeFlights.percentChange}
                 color="bg-gradient-to-br from-blue-500 to-blue-600"
               />
               <Card

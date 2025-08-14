@@ -98,7 +98,7 @@ const RevenueChart = () => {
 
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
+              <LineChart data={[...data].reverse()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="period" stroke="#666" />
                 <YAxis stroke="#666" />

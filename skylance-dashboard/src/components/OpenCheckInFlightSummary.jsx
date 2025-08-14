@@ -99,7 +99,10 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
   };
 
   const filteredFlights = flights.filter((flight) =>
-    flight.flightid.toString().includes(searchQuery.toLowerCase())
+    flight.flightid
+      ?.toString()
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -110,7 +113,7 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
             <h2 className="text-xl font-semibold text-gray-900">
               Flights Open for Check-In
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
+            {/* <p className="text-sm text-gray-500 mt-1">
               Daily flights for{" "}
               {new Date().toLocaleDateString("en-US", {
                 weekday: "long",
@@ -118,11 +121,11 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
                 month: "long",
                 day: "numeric",
               })}
-            </p>
+            </p> */}
           </div>
           <div className="flex items-center space-x-2 text-sm text-gray-500">
             <Calendar size={16} />
-            <span>Today's Schedule</span>
+            <span>Scheduled Flight(s)</span>
           </div>
         </div>
 
@@ -183,7 +186,9 @@ const OpenCheckInFlightSummary = ({ onFlightSelect, selectedFlight }) => {
                       Gate {flight.gate || "---"}
                     </p>
                     <p className="text-sm font-medium text-gray-900">
-                      {flight.departure}
+                      {flight.date
+                        ? new Date(flight.date).toLocaleDateString("en-GB")
+                        : "N/A"}
                     </p>
                   </div>
                 </div>

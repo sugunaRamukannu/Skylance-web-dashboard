@@ -66,7 +66,7 @@ const FlightShowPredictionPie = () => {
       {/* Title and Flight Filter */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">
-          {selectedFlight} Prediction
+          {selectedFlight}
         </h2>
         <div className="flex items-center gap-2">
           <Filter className="text-gray-700" size={16} />
@@ -128,7 +128,7 @@ const FlightShowPredictionPie = () => {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
             <p className="text-2xl font-bold text-gray-800">{showRate}%</p>
-            <p className="text-sm text-gray-600">Show Prediction</p>
+            <p className="text-sm text-gray-600">Show Probability</p>
           </div>
         </div>
       </div>
