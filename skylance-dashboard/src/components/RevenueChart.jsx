@@ -8,7 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
 import FilterButton from "./FilterButton";
 
 const RevenueChart = () => {
@@ -36,14 +35,41 @@ const RevenueChart = () => {
       }
 
       const result = await response.json();
-      if (result.success) {
-        setData(result.data);
+      console.log("API Response:", result); // Debug log
+
+      if (result.success && result.data) {
+        let filteredData = result.data;
+
+        // Process and clean the data
+        filteredData = filteredData.map((item) => ({
+          period: item.period?.toString() || "",
+          revenue: Number(item.revenue) || 0,
+        }));
+
+        // Sort data based on period type
+        if (period === "year") {
+          filteredData = [...filteredData]
+            .sort((a, b) => Number(a.period) - Number(b.period))
+            .slice(-4);
+        } else if (period === "month") {
+          // Sort months in ascending order and reverse to display left to right
+          filteredData = [...filteredData]
+            .sort((a, b) => {
+              const dateA = new Date(a.period);
+              const dateB = new Date(b.period);
+              return dateA - dateB;
+            })
+            .reverse(); // Add reverse to display months from earliest to latest (left to right)
+        }
+
+        console.log("Processed Data:", filteredData); // Debug log
+        setData(filteredData);
         setError(null);
       } else {
-        throw new Error("API responded with success: false");
+        throw new Error("API responded with success: false or no data");
       }
     } catch (err) {
-      // console.error("Failed to fetch revenue data:", err.message);
+      console.error("Fetch error:", err); // Debug log
       setError("Failed to fetch revenue data.");
       setData([]);
     } finally {
@@ -66,6 +92,10 @@ const RevenueChart = () => {
     return `$${value}`;
   };
 
+  const formatTooltip = (value, name, props) => {
+    return [`${(value / 1000).toFixed(0)}K`, "Revenue"];
+  };
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
       <div className="flex justify-between items-center mb-6">
@@ -84,9 +114,17 @@ const RevenueChart = () => {
       </div>
 
       {loading ? (
-        <p className="text-gray-500">Loading...</p>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-500">Loading...</p>
+        </div>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-red-500">{error}</p>
+        </div>
+      ) : data.length === 0 ? (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-gray-500">No data available</p>
+        </div>
       ) : (
         <>
           <div className="mb-4">
@@ -98,9 +136,12 @@ const RevenueChart = () => {
 
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={[...data].reverse()}>
+              <LineChart
+                data={data}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="period" stroke="#666" />
+                <XAxis dataKey="period" stroke="#666" interval={0} />
                 <YAxis stroke="#666" />
                 <Tooltip
                   contentStyle={{
@@ -109,10 +150,8 @@ const RevenueChart = () => {
                     borderRadius: "12px",
                     boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
                   }}
-                  formatter={(value) => [
-                    `$${(value / 1000).toFixed(0)}K`,
-                    "Revenue",
-                  ]}
+                  formatter={formatTooltip}
+                  labelStyle={{ color: "#666" }}
                 />
                 <Line
                   type="monotone"
@@ -121,6 +160,7 @@ const RevenueChart = () => {
                   strokeWidth={3}
                   dot={{ fill: "#10b981", strokeWidth: 2, r: 5 }}
                   activeDot={{ r: 7, stroke: "#10b981", strokeWidth: 2 }}
+                  connectNulls={false}
                 />
               </LineChart>
             </ResponsiveContainer>
